@@ -1,4 +1,10 @@
 --[[
+
+
+[!!!] This is just a copy of https://pastebin.com/raw/XZz3Ytbu [!!!]
+
+
+
 EXAMPLE:
 local XanaxUILib = loadstring(game:HttpGet("https://pastebin.com/raw/XZz3Ytbu"))()
 local Ui = XanaxUILib:CreateWindow("Example UI")
