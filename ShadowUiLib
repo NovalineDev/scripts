@@ -1,0 +1,864 @@
+--[[
+ ____ _  _  __  ____  __  _  _    __   __ ____    _  _ ____ 
+/ ___) )( \/ _\(    \/  \/ )( \  (  ) (  |  _ \  / )( (___ \
+\___ ) __ (    \) D (  O ) /\ /  / (_/\)( ) _ (  \ \/ // __/
+(____|_)(_|_/\_(____/\__/(_/\_)  \____(__|____/   \__/(____)
+
+]]--
+
+local Library = {}
+
+-- DEFINING GLOBALS --
+if not _G.Settings then
+	_G.Settings = {
+		['Name'] = 'Shadow Lib v2',
+		['Intro'] = false,
+		['Keybind'] = 'G'
+	}
+end
+
+
+-- Constants --
+local PLAYERSERVICE = game:GetService('Players')
+local TWEENSERVICE = game:GetService('TweenService')
+local CONTEXTACTIONSERVICE = game:GetService('ContextActionService')
+local USERINPUTSERVICE = game:GetService('UserInputService')
+
+local LOCALPLAYER = PLAYERSERVICE.LocalPlayer
+
+-- Variables --
+local CurrentTab = nil
+
+
+-- Functions --
+local function MakeTween(Item, Info, Goal)
+	return TWEENSERVICE:Create(Item, Info, Goal)
+end
+
+local function Ripple(Button, x, y)
+	local Ripple = Instance.new("ImageLabel")
+	Ripple.Name = "Circle"
+	Ripple.Parent = Button
+	Ripple.BackgroundTransparency = 1
+	Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+	Ripple.Position = UDim2.new(0,x - Button.AbsolutePosition.X, 0, y - Button.AbsolutePosition.Y - 36)
+	Ripple.Image = "rbxassetid://3570695787"
+	Ripple.ScaleType = Enum.ScaleType.Slice
+	Ripple.SliceCenter = Rect.new(100, 100, 100, 100)
+	local RippleFx = MakeTween(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, 300, 0, 300), ImageTransparency = 0.95})
+	RippleFx:Play()
+	RippleFx.Completed:Wait()
+	Ripple:Destroy()
+end
+
+-- SCREEN GUI --
+local ShadowLib = Instance.new("ScreenGui")
+ShadowLib.Name = "ShadowLib"
+if game:GetService("RunService"):IsStudio() then
+	ShadowLib.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+else
+	ShadowLib.Parent = game:GetService('CoreGui')
+end
+
+-- INTRO --
+if _G.Settings['Intro'] == true then
+	local IntroFrame = Instance.new("Frame")
+	local Background = Instance.new("Frame")
+	local Pieces = Instance.new("Frame")
+	local TitleFrame = Instance.new("ImageButton")
+	local IntroText = Instance.new("TextLabel")
+	
+	IntroFrame.Name = "IntroFrame"
+	IntroFrame.Parent = ShadowLib
+	IntroFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	IntroFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	IntroFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	IntroFrame.Size = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
+	
+	Background.Name = "Background"
+	Background.Parent = IntroFrame
+	Background.AnchorPoint = Vector2.new(0.5, 0.5)
+	Background.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Background.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Background.Size = UDim2.new(1, 0, 1, 0)
+	
+	Pieces.Name = "Pieces"
+	Pieces.Parent = Background
+	Pieces.AnchorPoint = Vector2.new(0.5, 0.5)
+	Pieces.BackgroundColor3 = Color3.fromRGB(75, 0, 125)
+	Pieces.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Pieces.Rotation = 45
+	Pieces.Size = UDim2.new(8.1, 0, 32.25, 0)
+	Pieces.ZIndex = 2
+	
+	Pieces_2 = Pieces:Clone()
+	Pieces_2.Parent = Background
+	Pieces_2.BackgroundColor3 = Color3.fromRGB(50, 0, 100)
+	Pieces_2.Rotation = 0
+	
+	Pieces_3 = Pieces:Clone()
+	Pieces_3.Parent = Background
+	Pieces_3.BackgroundColor3 = Color3.fromRGB(0, 0, 100)
+	Pieces_3.Rotation = 135
+	
+	TitleFrame.Name = "TitleFrame"
+	TitleFrame.Parent = IntroFrame
+	TitleFrame.Active = false
+	TitleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	TitleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TitleFrame.BackgroundTransparency = 1.000
+	TitleFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	TitleFrame.Rotation = 90
+	TitleFrame.Selectable = false
+	TitleFrame.Size = UDim2.new(8.1, 0, 35, 0)
+	TitleFrame.ZIndex = 4
+	TitleFrame.Image = "rbxassetid://3570695787"
+	TitleFrame.ImageColor3 = Color3.fromRGB(0, 0, 25)
+	TitleFrame.ScaleType = Enum.ScaleType.Slice
+	TitleFrame.SliceCenter = Rect.new(100, 100, 100, 100)
+	TitleFrame.SliceScale = 0.100
+	
+	IntroText.Parent = TitleFrame
+	IntroText.AnchorPoint = Vector2.new(0.5, 0.5)
+	IntroText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	IntroText.BackgroundTransparency = 1.000
+	IntroText.Position = UDim2.new(0.5, 0, 0.5, 0)
+	IntroText.Rotation = -90.000
+	IntroText.Size = UDim2.new(2.5, 0, 0.25, 0)
+	IntroText.ZIndex = 5
+	IntroText.Font = Enum.Font.GothamBlack
+	IntroText.Text = _G.Settings['Name']
+	IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	IntroText.TextScaled = true
+	IntroText.TextSize = 14
+	IntroText.TextWrapped = true
+	
+	local Tween = MakeTween(IntroFrame, TweenInfo.new(1.5, Enum.EasingStyle.Sine), {Position = UDim2.new(0.5, 0, 0.5, 0)})
+	Tween:Play()
+	Tween.Completed:Wait()
+	
+	local Tween = MakeTween(IntroFrame, TweenInfo.new(2, Enum.EasingStyle.Sine), {Rotation = 720})
+	Tween:Play()
+	Tween.Completed:Wait()
+	
+	IntroFrame.Rotation = 0
+	
+	local Tween = MakeTween(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Size = UDim2.new(0.0125, 0, 0.0125, 0)})
+	Tween:Play()
+	Tween.Completed:Wait()
+	
+	local Connection1 = IntroText.MouseEnter:Connect(function()
+		MakeTween(IntroFrame, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.013, 0, 0.013, 0)}):Play()
+	end)
+	
+	local Connection2 = IntroText.MouseLeave:Connect(function()
+		MakeTween(IntroFrame, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.0125, 0, 0.0125, 0)}):Play()
+	end)
+	
+	TitleFrame.MouseButton1Down:Wait()
+	
+	Connection1:Disconnect()
+	Connection2:Disconnect()
+	
+	MakeTween(IntroFrame, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Size = UDim2.new(0.01, 0, 0.01, 0)}):Play()
+	TitleFrame.MouseButton1Up:Wait()
+	local Tween = MakeTween(IntroFrame, TweenInfo.new(0.4, Enum.EasingStyle.Bounce), {Size = UDim2.new(0.014, 0, 0.014, 0)})
+	Tween:Play()
+	Tween.Completed:Wait()
+	MakeTween(IntroFrame, TweenInfo.new(1.5, Enum.EasingStyle.Bounce), {Rotation = 180, Position = UDim2.new(0.5, 0, 1.4, 0)}):Play()
+	wait(1.5)
+	IntroFrame:Destroy()
+end
+
+-- Instances --
+local MainFrame = Instance.new("ImageLabel")
+local InfoFrame = Instance.new("ImageLabel")
+local Icon = Instance.new("ImageButton")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint", Icon)
+local Title = Instance.new("TextLabel")
+local ImageLabel = Instance.new("ImageLabel")
+local TabsControl = Instance.new("ScrollingFrame")
+local TabsListLayout = Instance.new("UIListLayout")
+local TabControlTitle = Instance.new("TextLabel")
+local KeyBind = Instance.new("Frame")
+local Text = Instance.new("TextLabel")
+local Bind = Instance.new("ImageButton")
+local Key = Instance.new("TextLabel")
+
+--Properties --
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ShadowLib
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainFrame.BackgroundTransparency = 1.000
+MainFrame.Position = UDim2.new(0.5, 0, 1.35, 0)
+MainFrame.ClipsDescendants = true
+MainFrame.Size = UDim2.new(0.45, 0, 0.55, 0)
+MainFrame.Image = "rbxassetid://3570695787"
+MainFrame.ImageColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.ImageTransparency = 0.100
+MainFrame.ScaleType = Enum.ScaleType.Slice
+MainFrame.SliceCenter = Rect.new(100, 100, 100, 100)
+MainFrame.SliceScale = 0.200
+
+InfoFrame.Name = "InfoFrame"
+InfoFrame.Parent = MainFrame
+InfoFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+InfoFrame.BackgroundTransparency = 1.000
+InfoFrame.Size = UDim2.new(0.300000012, 0, 1, 0)
+InfoFrame.Size = UDim2.new(0, InfoFrame.AbsoluteSize.X, InfoFrame.Size.Y.Scale, 0)
+InfoFrame.Image = "rbxassetid://3570695787"
+InfoFrame.ImageColor3 = Color3.fromRGB(25, 25, 25)
+InfoFrame.ImageTransparency = 0.100
+InfoFrame.ScaleType = Enum.ScaleType.Slice
+InfoFrame.SliceCenter = Rect.new(100, 100, 100, 100)
+InfoFrame.SliceScale = 0.200
+
+Icon.Name = "Icon"
+Icon.Parent = InfoFrame
+Icon.AnchorPoint = Vector2.new(0.5, 0.5)
+Icon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Icon.BackgroundTransparency = 1.000
+Icon.Position = UDim2.new(0.5, 0, 0.235, 0)
+Icon.Size = UDim2.new(0.7, 0, 0.25, 0)
+Icon.Image = "http://www.roblox.com/asset/?id=7618958772"
+
+Title.Name = "Title"
+Title.Parent = InfoFrame
+Title.AnchorPoint = Vector2.new(0.5, 0)
+Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1.000
+Title.Position = UDim2.new(0.5, 0, 0.375, 0)
+Title.Size = UDim2.new(0.95, 0, 0.1, 0)
+Title.Font = Enum.Font.GothamBold
+Title.Text = _G.Settings['Name']
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.TextSize = 14.000
+Title.TextWrapped = true
+
+TabsControl.Name = "TabsControl"
+TabsControl.Parent = InfoFrame
+TabsControl.Active = true
+TabsControl.AnchorPoint = Vector2.new(0.5, 1)
+TabsControl.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TabsControl.BackgroundTransparency = 1.000
+TabsControl.BorderSizePixel = 0
+TabsControl.Position = UDim2.new(0.5, 0, 0.975, 0)
+TabsControl.Size = UDim2.new(1, 0, 0.400000006, 0)
+TabsControl.CanvasPosition = Vector2.new(0, 418.880005)
+TabsControl.ScrollBarThickness = 5
+
+TabsListLayout.Name = 'TabsListLayout'
+TabsListLayout.Parent = TabsControl
+TabsListLayout.Padding = UDim.new(0, 5)
+TabsListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+TabsListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+TabControlTitle.Name = "Title"
+TabControlTitle.Parent = TabsControl
+TabControlTitle.Active = true
+TabControlTitle.AnchorPoint = Vector2.new(0.5, 0.5)
+TabControlTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TabControlTitle.BackgroundTransparency = 1.000
+TabControlTitle.Position = UDim2.new(0.5, 0, 0.5, 0)
+TabControlTitle.Selectable = true
+TabControlTitle.Size = UDim2.new(0.9, 0, 0, 35)
+TabControlTitle.Font = Enum.Font.GothamBold
+TabControlTitle.Text = "Tabs"
+TabControlTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabControlTitle.TextScaled = true
+TabControlTitle.TextSize = 14.000
+TabControlTitle.TextWrapped = true
+
+KeyBind.Name = "KeyBind"
+KeyBind.Parent = InfoFrame
+KeyBind.AnchorPoint = Vector2.new(0.5, 0)
+KeyBind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+KeyBind.BackgroundTransparency = 1.000
+KeyBind.Position = UDim2.new(0.5, 0, 0.48, 0)
+KeyBind.Size = UDim2.new(0.75, 0, 0.05, 0)
+
+Text.Name = "Text"
+Text.Parent = KeyBind
+Text.AnchorPoint = Vector2.new(0, 0.5)
+Text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Text.BackgroundTransparency = 1.000
+Text.Position = UDim2.new(0.325, 0, 0.5, -1)
+Text.Size = UDim2.new(0.65, 0, 1, 0)
+Text.Font = Enum.Font.GothamSemibold
+Text.Text = " to toggle UI"
+Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+Text.TextScaled = true
+Text.TextSize = 14.000
+Text.TextWrapped = true
+Text.TextXAlignment = Enum.TextXAlignment.Left
+
+Bind.Name = "Bind"
+Bind.Parent = KeyBind
+Bind.Active = false
+Bind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Bind.BackgroundTransparency = 1.000
+Bind.Position = UDim2.new(0.0250000004, 0, 0, 0)
+Bind.Selectable = false
+Bind.Size = UDim2.new(0.300000012, 0, 1, 0)
+Bind.Image = "rbxassetid://3570695787"
+Bind.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Bind.ImageTransparency = 0.200
+Bind.ScaleType = Enum.ScaleType.Slice
+Bind.SliceCenter = Rect.new(100, 100, 100, 100)
+Bind.SliceScale = 0.050
+
+Key.Name = "Key"
+Key.Parent = Bind
+Key.AnchorPoint = Vector2.new(0.5, 0.5)
+Key.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Key.BackgroundTransparency = 1.000
+Key.Position = UDim2.new(0.5, 0, 0.5, 0)
+Key.Size = UDim2.new(1, 0, 1, 0)
+Key.Font = Enum.Font.GothamBlack
+Key.Text = _G.Settings['Keybind']
+Key.TextColor3 = Color3.fromRGB(255, 255, 255)
+Key.TextScaled = true
+Key.TextSize = 14.000
+Key.TextWrapped = true
+
+-- Scripts --
+
+MakeTween(MainFrame, TweenInfo.new(0.75, Enum.EasingStyle.Sine), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+
+-- Toggle
+local Cooldown = false
+
+local function Toggle(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.End or Cooldown == true then
+		return
+	end
+	Cooldown = true
+	if MainFrame.Visible == true then
+		CurrentTab.Value = false
+		local TweenClose = MakeTween(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Sine), {Size = UDim2.new(0, InfoFrame.AbsoluteSize.X, 0.55, 0)})
+		TweenClose:Play()
+		TweenClose.Completed:Wait()
+		wait(0.5)
+		local TweenOut = MakeTween(MainFrame, TweenInfo.new(0.75, Enum.EasingStyle.Sine), {Position = UDim2.new(0.5, 0, 1.35, 0)})
+		TweenOut:Play()
+		TweenOut.Completed:Wait()
+		MainFrame.Visible = false
+	else
+		MainFrame.Visible = true
+		local TweenIn = MakeTween(MainFrame, TweenInfo.new(0.75, Enum.EasingStyle.Sine), {Position = UDim2.new(0.5, 0, 0.5, 0)})
+		TweenIn:Play()
+		TweenIn.Completed:Wait()
+		wait(0.5)
+		local TweenOpen = MakeTween(MainFrame, TweenInfo.new(0.85, Enum.EasingStyle.Sine), {Size = UDim2.new(0.45, 0, 0.55, 0)})
+		TweenOpen:Play()
+		TweenOpen.Completed:Wait()
+		CurrentTab.Value = true
+	end
+	Cooldown = false
+end
+
+CONTEXTACTIONSERVICE:BindAction("ToggleUI", Toggle, false, Enum.KeyCode[_G.Settings['Keybind']])
+
+-- Change bind
+Bind.MouseButton1Click:Connect(function()
+	Bind.Key.Text = '...'
+end)
+
+USERINPUTSERVICE.InputBegan:connect(function(input, gameProcessedEvent)
+	local KeyName = USERINPUTSERVICE:GetStringForKeyCode(input.KeyCode)
+	
+	if gameProcessedEvent or Key.Text ~= '...' or KeyName == '' then
+		return
+	end
+	CONTEXTACTIONSERVICE:UnbindAction("ToggleUI")
+	Key.Text = KeyName
+	CONTEXTACTIONSERVICE:BindAction("ToggleUI", Toggle, false, input.KeyCode)
+end)
+
+-- Expanding tab section
+TabsControl.CanvasSize = UDim2.new(0, 0, 0, TabsListLayout.AbsoluteContentSize.Y)
+TabsListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	TabsControl.CanvasSize = UDim2.new(0, 0, 0, TabsListLayout.AbsoluteContentSize.Y)
+end)
+
+Icon.MouseEnter:Connect(function()
+	MakeTween(Icon, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.75, 0, 0.3, 0)}):Play()
+end)
+
+Icon.MouseLeave:Connect(function()
+	MakeTween(Icon, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.7, 0, 0.25, 0)}):Play()
+end)
+
+Icon.MouseButton1Down:Connect(function()
+	MakeTween(Icon, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.65, 0, 0.2, 0)}):Play()
+	Icon.MouseButton1Up:Wait()
+	MakeTween(Icon, TweenInfo.new(0.5, Enum.EasingStyle.Elastic), {Size = UDim2.new(0.75, 0, 0.3, 0)}):Play()
+end)
+
+ShadowLib:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	InfoFrame.Size = UDim2.new(0.300000012, 0, 1, 0)
+	InfoFrame.Size = UDim2.new(0, InfoFrame.AbsoluteSize.X, InfoFrame.Size.Y.Scale, 0)
+end)
+
+
+function Library:CreateTab(Name)
+	local TabLibrary = {}
+	
+	-- Tab--
+	local Tab = Instance.new("ImageButton")
+	local Title = Instance.new("TextLabel")
+	local Circle = Instance.new("ImageLabel")
+	
+	Tab.Name = Name
+	Tab.Parent = TabsControl
+	Tab.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Tab.ClipsDescendants = true
+	Tab.Size = UDim2.new(0.9, 0, 0, 40)
+	Tab.AutoButtonColor = false
+	
+	Title.Name = "Title"
+	Title.Parent = Tab
+	Title.Active = true
+	Title.AnchorPoint = Vector2.new(0.5, 0.5)
+	Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Title.BackgroundTransparency = 1.000
+	Title.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Title.Selectable = true
+	Title.Size = UDim2.new(0.800000012, 0, 0.800000012, 0)
+	Title.Font = Enum.Font.GothamBold
+	Title.Text = Name
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.TextScaled = true
+	Title.TextSize = 14.000
+	Title.TextWrapped = true
+	
+	-- Frame --
+	local TabFrame = Instance.new("Frame")
+	local UIGridLayout = Instance.new("UIGridLayout")
+	local Opened = Instance.new('BoolValue')
+	
+	TabFrame.Name = Name
+	TabFrame.Parent = MainFrame
+	TabFrame.AnchorPoint = Vector2.new(0, 0.5)
+	TabFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	TabFrame.BackgroundTransparency = 0.9
+	TabFrame.BorderSizePixel = 0
+	TabFrame.ClipsDescendants = true
+	TabFrame.Position = UDim2.new(0.300000012, 0, 0.5, 0)
+	TabFrame.Size = UDim2.new(0.7, 0, 1, 0)
+	TabFrame.Visible = false
+	
+	UIGridLayout.Parent = TabFrame
+	UIGridLayout.FillDirection = Enum.FillDirection.Vertical
+	UIGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIGridLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	UIGridLayout.CellPadding = UDim2.new(0.025, 0, 0.01, 0)
+	UIGridLayout.CellSize = UDim2.new(0.4, 0, 0.1, 0)
+	UIGridLayout.FillDirectionMaxCells = 8
+	
+	Opened.Name = 'Opened'
+	Opened.Parent = TabFrame
+	Opened.Value = false
+	
+	-- Scripts --
+	Opened:GetPropertyChangedSignal("Value"):Connect(function()
+		if Opened.Value == true then
+			MakeTween(Tab, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.92, 0, 0, 50)}):Play()
+			Tab.BackgroundColor3 = Color3.fromRGB(5, 5, 15)
+		else
+			MakeTween(Tab, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.9, 0, 0, 40)}):Play()
+			Tab.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		end
+		TabFrame.Visible = Opened.Value
+	end)
+	
+	Tab.MouseButton1Down:Connect(function(x, y)
+		if Cooldown == true then
+			return
+		end
+		for i,v in ipairs(MainFrame:GetChildren()) do
+			local OpenedValue = v:FindFirstChild('Opened')
+			if OpenedValue and v ~= TabFrame then
+				OpenedValue.Value = false
+			end
+		end
+		Opened.Value = true
+		CurrentTab = Opened
+		Ripple(Tab, x, y)
+	end)
+	
+	if not CurrentTab then
+		coroutine.wrap(function()
+			CurrentTab = Opened
+			wait(0.1)
+			Opened.Value = true
+		end)()
+	end
+	
+	
+	function TabLibrary:Label(LabelText)
+		local NewTextLabel = Instance.new("TextLabel")
+		
+		NewTextLabel.Name = "TEXTLABEL"
+		NewTextLabel.Parent = TabFrame
+		NewTextLabel.AnchorPoint = Vector2.new(0.5, 1)
+		NewTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		NewTextLabel.BackgroundTransparency = 1.000
+		NewTextLabel.Position = UDim2.new(0.5, 0, 1, 0)
+		NewTextLabel.Size = UDim2.new(0, 200, 0, 50)
+		NewTextLabel.Font = Enum.Font.GothamBlack
+		NewTextLabel.Text = LabelText
+		NewTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		NewTextLabel.TextScaled = true
+		NewTextLabel.TextSize = 14.000
+		NewTextLabel.TextWrapped = true
+		NewTextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+		
+		local LabelLibrary = {}
+		function LabelLibrary:Refresh(RefreshText)
+			NewTextLabel.Text = RefreshText
+		end
+		return LabelLibrary
+	end
+	
+	function TabLibrary:Button(Text, Function)
+		local Button = Instance.new("ImageButton")
+		local Title = Instance.new("TextLabel")
+		
+		Button.Name = "Button"
+		Button.Parent = TabFrame
+		Button.Active = false
+		Button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		Button.ClipsDescendants = true
+		Button.AutoButtonColor = false
+		Button.Selectable = false
+		Button.Size = UDim2.new(0, 100, 0, 100)
+		
+		Title.Name = "Title"
+		Title.Parent = Button
+		Title.AnchorPoint = Vector2.new(0.5, 0.5)
+		Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Title.BackgroundTransparency = 1.000
+		Title.Position = UDim2.new(0.5, 0, 0.5, 0)
+		Title.Size = UDim2.new(0.8, 0, 0.8, 0)
+		Title.Text = Text
+		Title.Font = Enum.Font.GothamBold
+		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Title.TextScaled = true
+		Title.TextSize = 14.000
+		Title.TextWrapped = true
+		
+		local ClickFunction = Function
+		
+		Button.MouseButton1Down:Connect(function(x, y)
+			coroutine.wrap(ClickFunction)()
+			Ripple(Button, x, y)
+		end)
+		
+		local ButtonLibrary = {}
+		function ButtonLibrary:Refresh(RefreshText, RefreshFunction)
+			Title.Text = RefreshText
+			ClickFunction = RefreshFunction
+		end
+		return ButtonLibrary
+	end
+	
+	function TabLibrary:Dropdown(Placeholder, Contents, Function)
+		local Dropdown = Instance.new("Frame")
+		local Arrow = Instance.new("ImageButton")
+		local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+		local Output = Instance.new("TextLabel")
+		local Selection = Instance.new("ScrollingFrame")
+		local SelectionList = Instance.new("UIListLayout")
+		
+		Dropdown.Name = "Dropdown"
+		Dropdown.Parent = TabFrame
+		Dropdown.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		Dropdown.Size = UDim2.new(0, 100, 0, 100)
+		
+		Arrow.Name = "Arrow"
+		Arrow.Parent = Dropdown
+		Arrow.AnchorPoint = Vector2.new(1, 0.5)
+		Arrow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Arrow.BackgroundTransparency = 1.000
+		Arrow.Position = UDim2.new(0.980000019, 0, 0.5, 0)
+		Arrow.Rotation = 180.000
+		Arrow.Size = UDim2.new(0.150000006, 0, 0.449999988, 0)
+		Arrow.Image = "http://www.roblox.com/asset/?id=71659683"
+		
+		UIAspectRatioConstraint.Parent = Arrow
+		
+		Output.Name = "Output"
+		Output.Parent = Dropdown
+		Output.AnchorPoint = Vector2.new(0, 0.5)
+		Output.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Output.BackgroundTransparency = 1.000
+		Output.Position = UDim2.new(0, 0, 0.5, 0)
+		Output.Size = UDim2.new(0.899999976, 0, 0.800000012, 0)
+		Output.Font = Enum.Font.GothamBold
+		Output.Text = Placeholder
+		Output.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Output.TextScaled = true
+		Output.TextSize = 14.000
+		Output.TextWrapped = true
+		
+		Selection.Name = "Selection"
+		Selection.Parent = Dropdown
+		Selection.Active = true
+		Selection.AnchorPoint = Vector2.new(0.5, 0)
+		Selection.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		Selection.Position = UDim2.new(0.5, 0, 1, 0)
+		Selection.Size = UDim2.new(1, 0, 0, 0)
+		Selection.Visible = false
+		Selection.ZIndex = 2
+		Selection.CanvasSize = UDim2.new(0, 0, 4, 0)
+		Selection.ScrollBarThickness = 6
+		
+		SelectionList.Name = "SelectionList"
+		SelectionList.Parent = Selection
+		SelectionList.SortOrder = Enum.SortOrder.LayoutOrder
+		
+		local ChangeFunction = Function
+		
+		local function CreateContents(List)
+			for i,v in ipairs(List) do
+				local Option = Instance.new("TextButton")
+				Option.Name = v
+				Option.Parent = Selection
+				Option.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Option.BackgroundTransparency = 1.000
+				Option.Size = UDim2.new(0.95, 0, 0, 35)
+				Option.ZIndex = 3
+				Option.Font = Enum.Font.Arial
+				Option.Text = v
+				Option.TextColor3 = Color3.fromRGB(240, 240, 240)
+				Option.TextScaled = true
+				Option.TextSize = 14.000
+				Option.TextWrapped = true
+				Option.MouseButton1Down:Connect(function()
+					Output.Text = Option.Text
+					coroutine.wrap(ChangeFunction)(Option.Text)
+					MakeTween(Arrow, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Rotation = 180}):Play()
+					MakeTween(Selection, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+					wait(0.5)
+					Selection.Visible = false
+				end)
+			end
+		end
+		
+		CreateContents(Contents)
+		
+		Arrow.MouseButton1Down:Connect(function(x,y)
+			if Selection.Visible == true then
+				MakeTween(Arrow, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Rotation = 180}):Play()
+				MakeTween(Selection, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+				wait(0.5)
+				Selection.Visible = false
+			else
+				Selection.Visible = true
+				MakeTween(Arrow, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Rotation = 90}):Play()
+				MakeTween(Selection, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {Size = UDim2.new(1, 0, 2.5, 0)}):Play()
+			end
+			
+		end)
+		
+		Selection.CanvasSize = UDim2.new(0, 0, 0, SelectionList.AbsoluteContentSize.Y)
+		SelectionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			Selection.CanvasSize = UDim2.new(0, 0, 0, SelectionList.AbsoluteContentSize.Y)
+		end)
+		
+		local DropDownLibrary = {}
+		function DropDownLibrary:Refresh(RefreshPlaceholder, RefreshContents, RefreshFunction)
+			Output.Text = RefreshPlaceholder
+			for i,v in ipairs(Selection:GetChildren()) do
+				if v:IsA('TextButton') then
+					v:Destroy()
+				end
+			end
+			CreateContents(RefreshContents)
+			ChangeFunction = RefreshFunction
+		end
+		return DropDownLibrary
+	end
+	
+	function TabLibrary:Toggle(ToggleText, Status, Function)
+		local ToggleFrame = Instance.new("ImageButton")
+		local TextLabel = Instance.new("TextLabel")
+		local ToggleBox = Instance.new("ImageLabel")
+		local ToggleRatio = Instance.new("UIAspectRatioConstraint")
+		
+		ToggleFrame.Name = "Toggle"
+		ToggleFrame.Parent = TabFrame
+		ToggleFrame.Active = false
+		ToggleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ToggleFrame.BackgroundTransparency = 1.000
+		ToggleFrame.Selectable = false
+		ToggleFrame.Size = UDim2.new(0, 100, 0, 100)
+		
+		TextLabel.Parent = ToggleFrame
+		TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+		TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TextLabel.BackgroundTransparency = 1.000
+		TextLabel.Position = UDim2.new(0, 0, 0.5, 0)
+		TextLabel.Size = UDim2.new(0.75, 0, 0.699999988, 0)
+		TextLabel.Font = Enum.Font.GothamBlack
+		TextLabel.Text = "TOGGLE"
+		TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TextLabel.TextScaled = true
+		TextLabel.TextSize = 14.000
+		TextLabel.TextWrapped = true
+		
+		ToggleBox.Name = "ToggleBox"
+		ToggleBox.Parent = ToggleFrame
+		ToggleBox.AnchorPoint = Vector2.new(0, 0.5)
+		ToggleBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ToggleBox.BackgroundTransparency = 1.000
+		ToggleBox.Position = UDim2.new(0.774999976, 0, 0.5, 0)
+		ToggleBox.Size = UDim2.new(0.2, 0, 0.6, 0)
+		ToggleBox.ClipsDescendants = true
+		if Status == true then
+			ToggleBox.Image = 'http://www.roblox.com/asset/?id=5228569533'
+		else
+			ToggleBox.Image = "http://www.roblox.com/asset/?id=1264513374"
+		end
+		
+		ToggleRatio.Name = "ToggleRatio"
+		ToggleRatio.Parent = ToggleBox
+		
+		local ToggleSwitch = Status
+		
+		local ToggleFunction = Function
+		
+		local function CheckToggle()
+			coroutine.wrap(ToggleFunction)(ToggleSwitch)
+			if ToggleSwitch == true then
+				local Ripple = Instance.new("ImageLabel")
+				Ripple.Name = "Circle"
+				Ripple.Parent = ToggleBox
+				Ripple.BackgroundTransparency = 1
+				Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+				Ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
+				Ripple.Image = "rbxassetid://3570695787"
+				Ripple.ImageTransparency = 0.8
+				Ripple.ScaleType = Enum.ScaleType.Slice
+				Ripple.SliceCenter = Rect.new(100, 100, 100, 100)
+				local RippleFx = MakeTween(Ripple, TweenInfo.new(0.15), {Size = UDim2.new(1.5, 0, 1.5, 0), ImageTransparency = 0})
+				RippleFx:Play()
+				RippleFx.Completed:Wait()
+				ToggleBox.Image = 'http://www.roblox.com/asset/?id=5228569533'
+				Ripple:Destroy()
+			else
+				ToggleBox.Image = "http://www.roblox.com/asset/?id=1264513374"
+				local Ripple = Instance.new("ImageLabel")
+				Ripple.Name = "Circle"
+				Ripple.Parent = ToggleBox
+				Ripple.BackgroundTransparency = 1
+				Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+				Ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
+				Ripple.Size = UDim2.new(1.5, 0, 1.5, 0)
+				Ripple.Image = "rbxassetid://3570695787"
+				Ripple.ImageTransparency = 0
+				Ripple.ScaleType = Enum.ScaleType.Slice
+				Ripple.SliceCenter = Rect.new(100, 100, 100, 100)
+				local RippleFx = MakeTween(Ripple, TweenInfo.new(0.25), {Size = UDim2.new(0, 0, 0, 0), ImageTransparency = 1})
+				RippleFx:Play()
+				RippleFx.Completed:Wait()
+				Ripple:Destroy()
+			end
+		end
+		
+		ToggleFrame.MouseButton1Click:Connect(function()
+			ToggleSwitch = not ToggleSwitch
+			CheckToggle()
+		end)
+		
+		local ToggleLibrary = {}
+		function ToggleLibrary:Refresh(RefreshToggleText, RefreshStatus, RefreshFunction)
+			TextLabel.Text = RefreshToggleText
+			ToggleSwitch = RefreshStatus
+			CheckToggle()
+			ToggleFunction = RefreshFunction
+		end
+	end
+	
+	function TabLibrary:TextBox(TitleText, Placeholder, Function)
+		local TextInput = Instance.new("Frame")
+		local Title = Instance.new("TextLabel")
+		local TextBoxFrame = Instance.new("ImageLabel")
+		local TextBox = Instance.new("TextBox")
+		
+		TextInput.Name = "TextInput"
+		TextInput.Parent = TabFrame
+		TextInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TextInput.BackgroundTransparency = 1.000
+		TextInput.Size = UDim2.new(0, 100, 0, 100)
+		
+		Title.Name = "Text"
+		Title.Parent = TextInput
+		Title.AnchorPoint = Vector2.new(0, 0.5)
+		Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Title.BackgroundTransparency = 1.000
+		Title.Position = UDim2.new(0, 0, 0.5, 0)
+		Title.Size = UDim2.new(0.649999976, 0, 0.850000024, 0)
+		Title.Font = Enum.Font.GothamBlack
+		Title.Text = TitleText
+		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Title.TextScaled = true
+		Title.TextSize = 14.000
+		Title.TextWrapped = true
+		
+		TextBoxFrame.Name = "TextBoxFrame"
+		TextBoxFrame.Parent = TextInput
+		TextBoxFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+		TextBoxFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TextBoxFrame.BackgroundTransparency = 1.000
+		TextBoxFrame.Position = UDim2.new(0.824999988, 0, 0.5, 0)
+		TextBoxFrame.Size = UDim2.new(0.300000012, 0, 0.5, 0)
+		TextBoxFrame.Image = "rbxassetid://3570695787"
+		TextBoxFrame.ImageColor3 = Color3.fromRGB(0, 0, 0)
+		TextBoxFrame.ScaleType = Enum.ScaleType.Slice
+		TextBoxFrame.SliceCenter = Rect.new(100, 100, 100, 100)
+		TextBoxFrame.SliceScale = 0.050
+		
+		TextBox.Parent = TextBoxFrame
+		TextBox.AnchorPoint = Vector2.new(0.5, 0.5)
+		TextBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TextBox.BackgroundTransparency = 1.000
+		TextBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+		TextBox.Size = UDim2.new(0.949999988, 0, 0.949999988, 0)
+		TextBox.Font = Enum.Font.SourceSans
+		TextBox.PlaceholderText = Placeholder
+		TextBox.Text = ""
+		TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TextBox.TextScaled = true
+		TextBox.TextSize = 14.000
+		TextBox.TextWrapped = true
+		
+		local FinishedFunction = Function
+		
+		TextBox.Focused:Connect(function()
+			MakeTween(TextBoxFrame, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.325, 0, 0.55, 0)}):Play()
+		end)
+		
+		TextBox.FocusLost:Connect(function()
+			coroutine.wrap(FinishedFunction)(TextBox.Text)
+			MakeTween(TextBoxFrame, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = UDim2.new(0.3, 0, 0.5, 0)}):Play()
+		end)
+		
+		local TextBoxLibrary = {}
+		function TextBoxLibrary:Refresh(RefreshTitleText, RefreshPlaceholder, RefreshFunction)
+			Title.Text = RefreshTitleText
+			TextBox.PlaceholderText = RefreshPlaceholder
+			FinishedFunction = RefreshFunction
+		end
+		return TextBoxLibrary
+	end
+	
+	
+	return TabLibrary
+end
+
+return Library
